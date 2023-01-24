@@ -1,16 +1,23 @@
 
 
-from src.prime_generation import PrimeGenerator
+from src.prime_generation import get_prime
+import time
 
 def main():
-    p = PrimeGenerator(1024)
-    q = PrimeGenerator(1024)
+    # p = PrimeGenerator(1024)
+
     print("As chaves primas p e q são: ")
-    print(q.get_prime())
+    print(get_prime())
+    print("--- %s seconds ---" % (time.time() - start_time))
+
     print("\n e \n")
-    print(p.get_prime())
+    print(get_prime())
+
+
     return 0
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    print("--- %s Total seconds ---" % (time.time() - start_time))
