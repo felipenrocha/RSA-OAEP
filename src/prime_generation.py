@@ -1,14 +1,26 @@
 
 import random
 BITS = 1024
+
  
+       
+
+def get_prime():
+    """Generate random prime of BITS size"""
+    while True:
+        prime_candidate = __get_low_level_prime(list_of_primes)
+        if __miller_rabin_test(prime_candidate):
+            return prime_candidate
+
+
+
 
 def get_small_primes(number):
     """Get small primes using Sieve of Eratosthenes algorithm. 
         Return a list with primes smaller than or equal to number. It is also given that n is a small number.
     """
         # list of primes up to number
-    list_of_primes = list()        
+    list_of_primes = []       
 
     # Create a boolean array "prime[0..n]" and initialize  all entries it as true:
 
@@ -29,17 +41,10 @@ def get_small_primes(number):
         if prime[i] == True:
             list_of_primes.append(i)        
 
-    return list_of_primes
+    return list_of_primes[2:]
 
-list_of_primes = get_small_primes(400)
- 
-       
 
-def get_prime():
-    while True:
-        prime_candidate = __get_low_level_prime(list_of_primes)
-        if __miller_rabin_test(prime_candidate):
-            return prime_candidate
+list_of_primes = get_small_primes(1000)
 
 
 def __get_low_level_prime(list_of_primes):
@@ -57,7 +62,7 @@ def __get_low_level_prime(list_of_primes):
              # Obtain a random number
         prime_candidate = __random_number() 
         for divisor in list_of_primes: 
-            if divisor != 0 and prime_candidate % divisor == 0 and divisor**2 <= prime_candidate:
+            if prime_candidate % divisor == 0 and divisor  ** 2 <= prime_candidate:
                 break
                 # If no divisor found, return value
             else:

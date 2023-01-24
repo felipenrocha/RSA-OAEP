@@ -1,18 +1,10 @@
 
 
-from src.prime_generation import get_prime
+from src.key_gen import KeyGen
 import time
 
 def main():
-    # p = PrimeGenerator(1024)
-
-    print("As chaves primas p e q são: ")
-    print(get_prime())
-    print("--- %s seconds ---" % (time.time() - start_time))
-
-    print("\n e \n")
-    print(get_prime())
-
+    key_gen = KeyGen()
 
     return 0
 
