@@ -1,20 +1,29 @@
 
 
-from src.prime_generation import get_prime
+from src.key_gen import KeyGen
+from src.encryption import encrypt, decrypt
+
+
 import time
 
 def main():
-    # p = PrimeGenerator(1024)
+    
 
-    print("As chaves primas p e q são: ")
-    print(get_prime())
-    print("--- %s seconds ---" % (time.time() - start_time))
-
-    print("\n e \n")
-    print(get_prime())
+    bob = KeyGen()
+    m = 'Hello World!'
 
 
-    return 0
+    public_key = bob.get_public_key()
+    private_key = bob.get_private_key()
+
+    print('Public Key:', public_key)
+    print('Private Key:', private_key)
+    print('Original Message:', m)
+    c = encrypt(m, public_key)
+    print('Criptogram:', c)
+    m = decrypt(c, private_key)
+    print('Message Decrypted', m)
+
 
 
 if __name__ == '__main__':
