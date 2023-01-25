@@ -1,4 +1,4 @@
-from src.prime_generation import get_prime, BITS
+from src.prime import get_prime, BITS
 import random
 import src.modular_math as mod
 # inspired by: https://www.youtube.com/watch?v=oOcTVTpUsPQ
@@ -36,6 +36,8 @@ class KeyGen:
 
     def get_private_key(self):
         return self.__private_key
+    def get_modulus(self):
+        return self.n
     
     def __generate_e(self):
         # choose e
@@ -49,4 +51,6 @@ class KeyGen:
         # choose d :
         # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)    
         return mod.find_mod_inverse(e, self.phi)
+    
+
             
