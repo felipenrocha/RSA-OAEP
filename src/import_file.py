@@ -1,15 +1,17 @@
 import src.primitives as primitives
 from src.rsa import RSAKey
-
 from Crypto.Util.asn1 import DerSequence
 from Crypto.PublicKey import (_expand_subject_public_key_info)
 from Crypto.Math.Numbers import Integer
 
 
 
-def import_key(extern_key, passphrase=None):
+# copied from Cryptodome but changed to my class
+
+def import_key(extern_key, passphrase=None, format="PEM"):
     """Import an RSA key (public or private).
     """
+
 
     from Crypto.IO import PEM
 
@@ -31,8 +33,6 @@ def import_key(extern_key, passphrase=None):
 
 oid = "1.2.840.113549.1.1.1"
 
-
-# copied from Crypto but changed to my class
 def construct(rsa_components):
     r"""Construct an RSA key from a tuple of valid RSA components.
 

@@ -42,6 +42,7 @@ class RSAKey:
         elif e == 0 and ((d and modulus) != 0):
             self._d = d
             self._n = modulus
+        # public key case:
         elif d == 0 and ((e and modulus) !=0):
             self._e = e
             self._n = modulus
@@ -127,6 +128,14 @@ class RSAKey:
         # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)    
         return mod.find_mod_inverse(e, self.phi)
 
+
+
+
+
+
+
+
+
     #  export function, TODO: write those functions myself
     def export_key(self, format='PEM', passphrase=None, randfunc=None):
         """
@@ -142,6 +151,8 @@ class RSAKey:
         Output:
             Byte string: A chave cifrada.
         """
+
+        
         # check if using passphrase:
         if passphrase:
             passphrase = primitives.primitives.tobytes(passphrase)
@@ -154,49 +165,37 @@ class RSAKey:
         # obs.: couldnt do this function by myself= DerSequence, PCKS8 encoding, PEM encoding
 
         if not self.isPublic():
-            binary_key = DerSequence([0,
-                                      self.n,
-                                      self.e,
-                                      self.d,
-                                      self.p,
-                                      self.q,
-                                      self.d % (self.p-1),
-                                      self.d % (self.q-1),
-                                      Integer(self.q).inverse(self.p)
-                                      ]).encode()
+            binary_key = DerSequence([0,self.n,self.e,self.d, self.p, self.q, self.d % (self.p-1),
+                                      self.d % (self.q-1), Integer(self.q).inverse(self.p)]).encode()
             
             key_type = 'RSA PRIVATE KEY'
            
             # PKCS#8
             # TODO: this function
             from Crypto.IO import PKCS8
-
+            if format == "BASE64":
+                key_type = 'PRIVATE KEY'
+                str = primitives.BASE64Encode(self.get_key(), key_type)
             if format == 'PEM':
                 key_type = 'PRIVATE KEY'
                 binary_key = PKCS8.wrap(binary_key, oid, None,
                                             key_params=DerNull())
-            else:
-                key_type = 'ENCRYPTED PRIVATE KEY'
-                if not protection:
-                    protection = 'PBKDF2WithHMAC-SHA1AndDES-EDE3-CBC'
-                    binary_key = PKCS8.wrap(binary_key, oid,
-                                            passphrase, protection,
-                                            key_params=DerNull())
-                    passphrase = None
         else:
             key_type = "PUBLIC KEY"
-            binary_key = _create_subject_public_key_info(oid,
+            if format == "BASE64":
+                key_type = 'PRIVATE KEY'
+                str = primitives.BASE64Encode(self.get_key(), key_type)
+            else:
+                binary_key = _create_subject_public_key_info(oid,
                                                          DerSequence([self.n,
                                                                       self.e]),
                                                          DerNull()
                                                          )
 
-        if format == 'PEM':
-            from Crypto.IO import PEM
-            
-            
-            # no time to implement PEM Encode
-            pem_str = PEM.encode(binary_key, key_type, passphrase, randfunc)
-            return primitives.tobytes(pem_str)
+                # no time to implement PEM Encode
+                from Crypto.IO import PEM
+                str = PEM.encode(binary_key, key_type, passphrase, randfunc)
+
+        return primitives.tobytes(str)
 
 oid = "1.2.840.113549.1.1.1"

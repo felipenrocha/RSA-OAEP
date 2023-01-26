@@ -71,12 +71,9 @@ def fromBase64(string):
 
 
 # TODO: implement this functions myself
-def PEMEncode(data, key_type):
+def BASE64Encode(data, key_type):
     out = "-----BEGIN " + key_type + "-----\n "
-    chunks = [(toBase64(data[i:i + 48]))
-              for i in range(0, len(data), 48)]
-    out += "".join(chunks) + "\n"
+    out += toBase64(str(data))+ "\n"
     out += "-----END "+ key_type + "-----" 
     return out
-def PEMDecode(data, key_type):
-    return
+

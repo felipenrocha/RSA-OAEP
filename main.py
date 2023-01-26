@@ -12,11 +12,9 @@ def main():
     bob = RSAKey()
     pub_key = bob.public_key
     # prv_key = bob.private_key
-    exported = pub_key.export_key()
-    print('key: ', {pub_key.e})
-    imported = import_key(exported)
-    print('key: ', {imported.e})
-    
+    exported = pub_key.export_key(format="BASE64")
+    print('key: ', exported)
+
 
     m = 'Hello World!'
 
