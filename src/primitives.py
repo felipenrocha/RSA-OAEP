@@ -1,5 +1,8 @@
 #  https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
 
+import base64
+
+
 def i2osp(x: int, l: int):
     """
      Integer-to-Octet-String
@@ -37,3 +40,41 @@ def os2ip(X):
 def xor(x: bytes, y: bytes) -> bytes:
     '''Byte-by-byte XOR of two byte arrays'''
     return bytes(a ^ b for a, b in zip(x, y))
+
+def tobytes(s, encoding="latin-1"):
+        if isinstance(s, bytes):
+            return s
+        elif isinstance(s, bytearray):
+            return bytes(s)
+        elif isinstance(s,str):
+            return s.encode(encoding)
+        elif isinstance(s, memoryview):
+            return s.tobytes()
+        else:
+            return bytes([s])
+
+def toBase64(string):
+    
+    string_bytes = string.encode("ascii")
+    base64_bytes = base64.b64encode(string_bytes)
+    base64_string = base64_bytes.decode("ascii")
+    return base64_string
+
+def fromBase64(string):
+   
+    base64_bytes = string.encode("ascii")
+    string_bytes = base64.b64decode(base64_bytes)
+    string = string_bytes.decode("ascii")
+    return string
+
+
+# TODO: implement this functions myself
+def PEMEncode(data, key_type):
+    out = "-----BEGIN " + key_type + "-----\n "
+    chunks = [(toBase64(data[i:i + 48]))
+              for i in range(0, len(data), 48)]
+    out += "".join(chunks) + "\n"
+    out += "-----END "+ key_type + "-----" 
+    return out
+def PEMDecode(data, key_type):
+    return

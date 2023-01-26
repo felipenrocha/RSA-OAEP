@@ -1,26 +1,20 @@
 
 
-from src.key_gen import KeyGen
-from src.encryption import oaep_encode, oeaep_decode
+from src.rsa import RSAKey
+from src.rsa_oaep import oaep_encode, oeaep_decode
 
 import time
 
 def main():
     
 
-    bob = KeyGen()
+    bob = RSAKey()
+    pub_key = bob.public_key
+    # prv_key = bob.private_key
+    print(pub_key.export_key())
+
     m = 'Hello World!'
 
-
-    public_key = bob.get_public_key()
-    prv_key = bob.get_private_key()
-
-    message = m.encode("utf-8")
-    emLen = public_key[1].bit_length() // 8
-    a = oaep_encode(message, emLen)
-    print(message,a)
-    b = oeaep_decode(a, emLen)
-    
 
 
 

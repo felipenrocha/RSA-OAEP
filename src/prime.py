@@ -1,6 +1,6 @@
 
 import random
-BITS = 256
+BITS = 128
 
  
        
