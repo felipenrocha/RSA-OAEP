@@ -12,9 +12,8 @@ def main():
     pub_key = bob.public_key
     # prv_key = bob.private_key
     exported = pub_key.export_key()
-    print('exported key: ', pub_key.e)
-    imported = import_key(exported)
-    print('imported key = ', imported.e)
+    print('exported key: ', exported)
+
     m = 'Hello World!'
 
 
