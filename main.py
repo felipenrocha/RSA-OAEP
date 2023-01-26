@@ -10,11 +10,11 @@ def main():
 
     bob = RSAKey()
     pub_key = bob.public_key
-    # prv_key = bob.private_key
-    exported = pub_key.export_key()
-    print('exported key: ', exported)
-
-    m = 'Hello World!'
+    prv_key = bob.private_key
+    exported_pub = pub_key.export_key()
+    print('exported public key: ', exported_pub)
+    exported_prv = prv_key.export_key()
+    print('exported private key: ', exported_prv)
 
 
 
