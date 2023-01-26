@@ -2,7 +2,9 @@
 
 import base64
 
-
+def tostr(bs):
+    return bs.decode("latin-1")
+    
 def i2osp(x: int, l: int):
     """
      Integer-to-Octet-String

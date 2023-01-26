@@ -1,15 +1,15 @@
 from src.prime import get_prime, BITS
-import random
 import src.modular_math as mod
+import src.primitives as primitives
+import random, os
+
+
+# todo: remove this imports and do it myself
 from Crypto.Math.Numbers import Integer
 from Crypto.Util.asn1 import DerSequence, DerNull
-from Crypto.PublicKey import (_expand_subject_public_key_info,
-                              _create_subject_public_key_info,
-                              _extract_subject_public_key_info)
+from Crypto.PublicKey import (_create_subject_public_key_info)
 
-import src.primitives as primitives
 
-import os
 
 # Author: Felipe Nascimento Rocha - Brasilia, Brazil, 2023
 
@@ -20,10 +20,10 @@ class RSAKey:
     def __init__(self, p=0, q=0, e= 0, d = 0, modulus=0):
         #  setup key with params fixed
      
-        self._d = 0
         self._e = 0
+        self._d = 0
         # create new key
-        if (p and q and e and d and modulus) == 0:
+        if e == 0 and d == 0:
             # 1) Choose two large prime numbers p and q
             self.p = get_prime()
             self.q = get_prime()
@@ -36,13 +36,17 @@ class RSAKey:
             # 5) Determine d as d ≡ e−1 (mod phi(n)); that is, d is the modular multiplicative inverse of e modulo phi(n)
             self._d = self.__generate_d(self._e)
         
+
+
         # private key case:
         elif e == 0 and ((d and modulus) != 0):
             self._d = d
             self._n = modulus
-        elif d == 0 and ((e and modulus) != 0):
+        elif d == 0 and ((e and modulus) !=0):
             self._e = e
             self._n = modulus
+        
+
     @property
     def n(self):
         return int(self._n)
@@ -59,7 +63,6 @@ class RSAKey:
         if self._e != 0:
             return RSAKey(e=self._e, modulus=self._n, d =0)
         else:
-            print(self._e)
             raise ValueError("This is a private key, you cant get the public one.")  
 
     @property 
@@ -78,7 +81,6 @@ class RSAKey:
             return (self.d, self.n)
         else:
             # return both
-            print("returning both")
             return ((self.e, self.n), (self.d, self.n))
     def isPublic(self):
         """True if current key is a public one"""
@@ -92,21 +94,46 @@ class RSAKey:
             return True
         return False
     
-    def size_in_bits(self):
+    def _size_in_bits(self):
         """Size of the RSA modulus in bits"""
         return self._n.size_in_bits()
 
-    def size_in_bytes(self):
+    def _size_in_bytes(self):
         """The minimal amount of bytes that can hold the RSA modulus"""
         return (self._n.size_in_bits() - 1) // 8 + 1    
 
+    
+        
+
+    def _encrypt(self, text):
+        return pow(text, self.c, self.n)
+    def _decrypt(self, cipher):
+        if cipher > self.n:
+            raise ValueError("Cipher too large")
+        return pow(cipher, self.d, self.n)
+    
+    
+    # calculating new keys
+    def __generate_e(self):
+        # choose e
+        # 1) 2 < e < phi(n)
+        # 2) has to be coprime with n and phi(n)
+        while True:
+            e = random.randrange(2**(BITS - 1), 2**(BITS))
+            if mod.is_coprime(e, self.phi):
+                return e
+    def __generate_d(self, e):
+        # choose d :
+        # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)    
+        return mod.find_mod_inverse(e, self.phi)
+
+    #  export function, TODO: write those functions myself
     def export_key(self, format='PEM', passphrase=None, randfunc=None):
         """
         Export this key
         Inputs:
             1. Format (String):
                 - "PEM" - cifracao de texto
-                - *'DER'*. cifracao binaria.
             2. Passphrase (string) (para chaves privadas): 
                 - Chave usada para proteger a saída
             3. randfunc:
@@ -117,18 +144,15 @@ class RSAKey:
         """
         # check if using passphrase:
         if passphrase:
-            passphrase = primitives.tobytes(passphrase)
+            passphrase = primitives.primitives.tobytes(passphrase)
         #  check randfunc
 
         if not randfunc:
             randfunc = os.urandom
             
 
-        # DER format is always used, even in case of PEM, which simply
-        # encodes it into BASE64.
-        # check if its private key
+        # obs.: couldnt do this function by myself= DerSequence, PCKS8 encoding, PEM encoding
 
-        # obs.: couldnt do this function by myself.
         if not self.isPublic():
             binary_key = DerSequence([0,
                                       self.n,
@@ -167,8 +191,6 @@ class RSAKey:
                                                          DerNull()
                                                          )
 
-        if format == 'DER':
-            return binary_key
         if format == 'PEM':
             from Crypto.IO import PEM
             
@@ -176,27 +198,5 @@ class RSAKey:
             # no time to implement PEM Encode
             pem_str = PEM.encode(binary_key, key_type, passphrase, randfunc)
             return primitives.tobytes(pem_str)
-        
-
-    def _encrypt(self, text):
-        return pow(text, self.c, self.n)
-    def _decrypt(self, cipher):
-        if cipher > self.n:
-            raise ValueError("Cipher too large")
-        return pow(cipher, self.d, self.n)
-
-    def __generate_e(self):
-        # choose e
-        # 1) 2 < e < phi(n)
-        # 2) has to be coprime with n and phi(n)
-        while True:
-            e = random.randrange(2**(BITS - 1), 2**(BITS))
-            if mod.is_coprime(e, self.phi):
-                return e
-    def __generate_d(self, e):
-        # choose d :
-        # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)    
-        return mod.find_mod_inverse(e, self.phi)
-    
 
 oid = "1.2.840.113549.1.1.1"
