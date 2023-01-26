@@ -55,6 +55,8 @@ def tobytes(s, encoding="latin-1"):
         else:
             return bytes([s])
 
+
+        
 def toBase64(string):
     
     string_bytes = string.encode("ascii")
@@ -77,3 +79,17 @@ def BASE64Encode(data, key_type):
     out += "-----END "+ key_type + "-----" 
     return out
 
+def BASE64Decoding(data, key_type):
+    data = tostr(data)
+    data = data.split("\n")
+    data = data[1:-1][0]
+    return fromBase64(data)
+    
+
+
+def totuple(text):
+    """Convert texting into Tuple"""
+    #  remove ( and ):
+    text = text[1:-1]
+    text = text.split(",")
+    return (int(text[0]), int(text[1]))

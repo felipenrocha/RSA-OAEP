@@ -1,14 +1,7 @@
 from src.prime import get_prime, BITS
 import src.modular_math as mod
-import src.primitives as primitives
+from src.primitives import BASE64Decoding, BASE64Encode, tobytes, totuple, tostr
 import random, os
-
-
-# todo: remove this imports and do it myself
-from Crypto.Math.Numbers import Integer
-from Crypto.Util.asn1 import DerSequence, DerNull
-from Crypto.PublicKey import (_create_subject_public_key_info)
-
 
 
 # Author: Felipe Nascimento Rocha - Brasilia, Brazil, 2023
@@ -136,66 +129,51 @@ class RSAKey:
 
 
 
-    #  export function, TODO: write those functions myself
-    def export_key(self, format='PEM', passphrase=None, randfunc=None):
+    def export_key(self):
         """
         Export this key
-        Inputs:
-            1. Format (String):
-                - "PEM" - cifracao de texto
-            2. Passphrase (string) (para chaves privadas): 
-                - Chave usada para proteger a saída
-            3. randfunc:
-                Uma função de bytes aleatorios. Usado para exportação PEM
-            
         Output:
             Byte string: A chave cifrada.
+
+            Formato: 
+            ----------- BEGIN KEY_TYPE KEY ---------------
+                    (e,n)/(d,n) converted to base64
+            ------------ END KEY_TYPE KEY ----------------
         """
 
-        
-        # check if using passphrase:
-        if passphrase:
-            passphrase = primitives.primitives.tobytes(passphrase)
-        #  check randfunc
-
-        if not randfunc:
-            randfunc = os.urandom
-            
-
-        # obs.: couldnt do this function by myself= DerSequence, PCKS8 encoding, PEM encoding
-
-        if not self.isPublic():
-            binary_key = DerSequence([0,self.n,self.e,self.d, self.p, self.q, self.d % (self.p-1),
-                                      self.d % (self.q-1), Integer(self.q).inverse(self.p)]).encode()
-            
-            key_type = 'RSA PRIVATE KEY'
-           
-            # PKCS#8
-            # TODO: this function
-            from Crypto.IO import PKCS8
-            if format == "BASE64":
-                key_type = 'PRIVATE KEY'
-                str = primitives.BASE64Encode(self.get_key(), key_type)
-            if format == 'PEM':
-                key_type = 'PRIVATE KEY'
-                binary_key = PKCS8.wrap(binary_key, oid, None,
-                                            key_params=DerNull())
+        if not self.isPublic():            
+            key_type = 'PRIVATE KEY'
+            str = BASE64Encode(self.get_key(), key_type)
         else:
             key_type = "PUBLIC KEY"
-            if format == "BASE64":
-                key_type = 'PRIVATE KEY'
-                str = primitives.BASE64Encode(self.get_key(), key_type)
-            else:
-                binary_key = _create_subject_public_key_info(oid,
-                                                         DerSequence([self.n,
-                                                                      self.e]),
-                                                         DerNull()
-                                                         )
+            str = BASE64Encode(self.get_key(), key_type)
+            
 
-                # no time to implement PEM Encode
-                from Crypto.IO import PEM
-                str = PEM.encode(binary_key, key_type, passphrase, randfunc)
+        return tobytes(str)
 
-        return primitives.tobytes(str)
 
-oid = "1.2.840.113549.1.1.1"
+
+def import_key(extern_key):
+    """Import an RSA key (public or private). 
+        that has this format:
+        
+            Formato: 
+            ----------- BEGIN KEY_TYPE KEY ---------------
+                    (e,n)/(d,n) converted to base64
+            ------------ END KEY_TYPE KEY ----------------
+    """
+    key_type = get_key_type(extern_key)
+    keys_string = BASE64Decoding(extern_key, key_type) 
+    key = totuple(keys_string)
+    if key_type == "PUBLIC KEY":
+        e, modulus = key
+        return RSAKey(e=e, modulus=modulus)
+    else:
+        d, modulus = key
+        return RSAKey(d=d, modulus=modulus)
+
+def get_key_type(extern_key):
+    if "PUBLIC KEY" in tostr(extern_key):
+        return "PUBLIC KEY"
+    else:
+        return "PRIVATE KEY"
