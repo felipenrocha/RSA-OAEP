@@ -1,6 +1,6 @@
 
 import random
-BITS = 128
+BITS = 512
 
  
        
@@ -68,8 +68,6 @@ def __get_low_level_prime(list_of_primes):
             else:
                 return prime_candidate
 
-
-#   https://www.youtube.com/watch?v=-BWTS_1Nxao:
 
 def __miller_rabin_test(n, k=10):
     for i in range(k):

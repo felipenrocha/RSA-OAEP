@@ -1,9 +1,9 @@
 #  https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
 
-import base64
+import base64, hashlib, math
 
 def tostr(bs):
-    return bs.decode("latin-1")
+    return bs.decode("ascii")
     
 def i2osp(x: int, l: int):
     """
@@ -70,6 +70,36 @@ def fromBase64(string):
     string_bytes = base64.b64decode(base64_bytes)
     string = string_bytes.decode("ascii")
     return string
+
+def mgf1(z, emLen, hash=hashlib.sha1):
+    """MGF1 is a Mask Generation Function based on a hash function.
+
+        Inputs  1. Z - seed from which mask is generated, an octet string
+                2. emLen -  intended length in octets of the mask, at most 2^32(hLen)
+                Output:
+                    1. mask -  an octet string of length l; or "mask too long"
+    """
+#    Steps:
+
+#    1.If l > 2^32(hLen), output "mask too long" and stop.
+    hLen = hash().digest_size # size of sha1 hash
+    if emLen > pow(2, (32*hLen)):
+        raise ValueError("Mask too long")
+#    2.Let T  be the empty octet string.
+    T = b''
+#    3.For counter from 0 to \lceil{l / hLen}\rceil-1, do the following:
+    for i in range(0, math.ceil(emLen / hLen)):
+
+#       a.Convert counter to an octet string C of length 4 with the primitive
+#           I2OSP: C = I2OSP (counter, 4)
+            c =  i2osp(i, 4)
+            T += hash(z + c).digest()
+#       b.Concatenate the hash of the seed Z and C to the octet string T: T =
+#               T || Hash (Z || C)
+
+#    4.Output the leading l octets of T as the octet string mask.
+    #  FIRST ONE IS
+    return T[:emLen]
 
 
 # TODO: implement this functions myself

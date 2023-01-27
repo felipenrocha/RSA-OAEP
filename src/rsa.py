@@ -1,7 +1,7 @@
 from src.prime import get_prime, BITS
 import src.modular_math as mod
 from src.primitives import BASE64Decoding, BASE64Encode, tobytes, totuple, tostr
-import random, os
+import random, os, sys
 
 
 # Author: Felipe Nascimento Rocha - Brasilia, Brazil, 2023
@@ -90,11 +90,11 @@ class RSAKey:
     
     def _size_in_bits(self):
         """Size of the RSA modulus in bits"""
-        return self._n.size_in_bits()
+        return self._n.bit_length()
 
     def _size_in_bytes(self):
         """The minimal amount of bytes that can hold the RSA modulus"""
-        return (self._n.size_in_bits() - 1) // 8 + 1    
+        return (self._n.bit_length() - 1) // 8 + 1    
 
     
         
@@ -109,25 +109,22 @@ class RSAKey:
     
     # calculating new keys
     def __generate_e(self):
-        # choose e
+        """ 
+        Gera um valor para e
         # 1) 2 < e < phi(n)
         # 2) has to be coprime with n and phi(n)
+        # """
         while True:
             e = random.randrange(2**(BITS - 1), 2**(BITS))
             if mod.is_coprime(e, self.phi):
                 return e
     def __generate_d(self, e):
+        """
+        Gera um valor para d
         # choose d :
-        # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)    
+        # 1) d * e (mod phi(n)) == 1    or d = modular inverse of e and phi(n)
+        #   """  
         return mod.find_mod_inverse(e, self.phi)
-
-
-
-
-
-
-
-
 
     def export_key(self):
         """
@@ -154,10 +151,10 @@ class RSAKey:
 
 
 def import_key(extern_key):
-    """Import an RSA key (public or private). 
+    """
+    Import an RSA key (public or private). 
         that has this format:
         
-            Formato: 
             ----------- BEGIN KEY_TYPE KEY ---------------
                     (e,n)/(d,n) converted to base64
             ------------ END KEY_TYPE KEY ----------------
