@@ -2,71 +2,71 @@
 
 from src.rsa import RSAKey, import_key
 from src.primitives import i2osp
-from src.rsaes_oaep import basic_encryption, basic_decryption, oaep_encrypt, oaep_decrypt
+import src.interface as interface
 
 
 import time
 
 def main():
-    print('--------------------------------------Key Generator Module--------------------------------------')
-    # generate new key 1024 bits:
-    bob = RSAKey(1024)
+    start_time = time.time()
+    bit_size = 1024
 
+    print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
+    key_pairs = RSAKey(bit_size)
+    print("--- %s Total seconds ---" % (time.time() - start_time))
 
-    # generate public key
-    pub_key = bob.public_key
-    # generate private key
-    prv_key = bob.private_key
+    pub_key = key_pairs.public_key
+    # get private key
+    prv_key = key_pairs.private_key
     print('Public Key: ', pub_key.get_key())
     print('Private Key: ', prv_key.get_key())
+    interface.wait_input()
 
-    print(SEPARATE_MODULES)
-    print('--------------------------------------Export/Import Key Module--------------------------------------')
+    # menu
+    c = ''
+    while c != '6':
+        interface.print_menu()
+        c = input("Selecione uma opção: ")
+        if c == '1':
+           
+            print('--------------------------------------Key Generator Module--------------------------------------')
+                    # generate new key 1024 bits:
+                    
+            print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
 
-    # exporting keys:
-    exported_pub_key = pub_key.export_key()
-    with open('pub_key.pem', 'w') as f:
-        f.write(exported_pub_key)
-    exported_prv_key = prv_key.export_key()
-    with open('prv_key.pem', 'w') as f:
-        f.write(exported_prv_key)
-    print('Exported Public Key: ', exported_pub_key)
+            key_pairs = RSAKey(bit_size)
+            # get public key
+            pub_key = key_pairs.public_key
+            # get private key
+            prv_key = key_pairs.private_key
+            print('Public Key: ', pub_key.get_key())
+            print('Private Key: ', prv_key.get_key())
+        elif c == '2':
+        # importing/exporting keys section:
+            interface.import_export(pub_key=pub_key, prv_key=prv_key)   
 
-    print(SEPARATE_MODULES)
-    # importing keys:
-    with open('pub_key.pem', 'r') as f:
-        imported_pub_key = import_key(f.read())
-        # use as key object from here ...
-    with open('prv_key.pem', 'r') as f:
-        imported_prv_key = import_key(f.read())
-        # use as key object from here ...
-    
-    print(SEPARATE_MODULES)
+        elif c == '3':
+        # Basic Encrypting Section:
+            interface.basicEncryption(pub_key=pub_key, prv_key=prv_key)
+            
+        elif c == '4':
+            interface.verification(pub_key=pub_key, prv_key=prv_key)
 
-    # encrypting and decrypting messages:
-    print('--------------------------------------Basic Encryption Section--------------------------------------')
-
-    message = "Hello World!"
-    em = basic_encryption(pub_key=pub_key, M=message)
-    print("Basic Encrypted Message: ", em)
-    dm = basic_decryption(prv_key=prv_key ,C=em)
-    print("Basic Decrypted Message: ", dm)
-
-
-    print(SEPARATE_MODULES )
-    
-
-    print('--------------------------------------OAEP Encryption Section--------------------------------------')
-    EM = oaep_encrypt(M=message, pub_key=pub_key)
-    print("OAEP Encrypted Message: ", EM)
-    DM = oaep_decrypt(C=EM, prv_key=prv_key)
-    print("OAEP Decrypted Message: ",DM)
-
-
-
+        elif c == '5':
+        # oaep section
+            try:
+                interface.rsaoaep(pub_key=pub_key, prv_key=prv_key)
+            except:
+                print("An error ocurred, int too big to convert.")
+        elif c == '':
+            continue     
+        else:
+            interface.print_menu()
+            c = input("Selecione uma opção: ")
 
 
-SEPARATE_MODULES = "-----------------------------------------------------------------------------------------------------------------------"
+
+
 
 
 if __name__ == '__main__':

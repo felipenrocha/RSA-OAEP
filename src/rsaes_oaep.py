@@ -9,7 +9,6 @@ from src.rsa import RSAKey
 
 # Author: Felipe Nascimento Rocha
 # Based on: https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
-
 # Brasilia, Brazil, 2023
 
 
@@ -79,7 +78,7 @@ def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1):
         raise ValueError("Parameter String too large")
     
     # 2. let pHash = Hash(P), an octet string of length hLen.
-    M = M.encode('ascii')
+    M = M.encode('utf-8')
     lHash = hash(label)
     hLen = len(lHash)
     mLen = len(M)    
@@ -152,7 +151,7 @@ def oaep_decrypt(prv_key:RSAKey, C, P=b""):
     # the encoding parameters P to recover a message M:
     M = oaep_decode(EM, P)
     # 6. Output the message M
-    return M.decode('ascii')
+    return M.decode('utf-8')
 def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         """ EME-OAEP-Decode(EM, P)
         Options: 
@@ -192,13 +191,12 @@ def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         # 7. Let DB = maskedDB xor dbMask.
         DB = xor(maskedDB, dbMask)
         # 8. Let pHash = Hash(P), an octet string of length hLen.
-        print('phash', lHash)
         index = DB.find(b'\x01') + 1
-        if lHash in DB:
-            print('Correct Parameter form from decrytped message! Verificação aceita!')
+        if lHash not in DB:
+            raise ValueError("Hash not in DB")
 
         # 9. Separate DB into an octet string pHash’ || PS || 01 || M
-
+        # 10. return m
         return DB[index:]
 def rsadp(c, prv_key: RSAKey) -> int:
     """ 
@@ -221,9 +219,11 @@ def rsadp(c, prv_key: RSAKey) -> int:
 
 
 def basic_encryption(pub_key: RSAKey, M):
+    """Basic encryption system created by my head since OAEP wasnt working the number is extended 
+    to the size of the modulus and encoded to an integer of fixed size that can be decoded later"""
     m  =  M.encode("ascii")
     mLen = len(m)
-    if mLen > pub_key._size_in_bytes():
+    if mLen > pub_key._size_in_bits():
         raise ValueError("Message to long")
     
     masked  = mask(m, pub_key)
@@ -234,7 +234,7 @@ def basic_encryption(pub_key: RSAKey, M):
   
 def basic_decryption(prv_key, C):
     encoded_int = rsadp(c=C, prv_key=prv_key)
-    maskSize = prv_key._size_in_bytes()
+    maskSize = prv_key._size_in_bits()
     decoded_int = encoded_int.to_bytes(length=maskSize, byteorder='big')
     dm = remove_mask(decoded_int)
     return dm.decode('ascii')

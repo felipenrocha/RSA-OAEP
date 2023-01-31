@@ -17,12 +17,9 @@ def remove_mask(octet_string: bytes):
         i+=1
     return octet_string[i:]
 
-
-
-
 def sha256(m):
     """Hasher for our OAEP and Mask function"""
-    hasher = hashlib.sha384()
+    hasher = hashlib.sha1()
     hasher.update(m)
     return hasher.digest()
 

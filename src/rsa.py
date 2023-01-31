@@ -153,7 +153,7 @@ class RSAKey:
 
 
 
-def import_key(extern_key):
+def import_key(extern_key) -> RSAKey:
     """
     Import an RSA key (public or private). 
         that has this format:
