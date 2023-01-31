@@ -192,7 +192,6 @@ def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         #     raise ValueError("Decoding error, parameter too large")
         # 3. Let maskedSeed be the first hLen octets of EM and let maskedDB be the remaining emLen-hLen octets.
         maskedSeed = EM[0:hLen]
-        print("Masked seed: ", maskedSeed)
         maskedDB = EM[hLen+1:-1]
         # 4.  Let seedMask = MGF(maskedDB, hLen).
         seedMask =  mgf(maskedDB, hLen)
@@ -203,9 +202,7 @@ def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         # 7. Let DB = maskedDB xor dbMask.
         DB = xor(maskedDB, dbMask)
         # 8. Let pHash = Hash(P), an octet string of length hLen.
-        print("pHash: ", lHash)
         # 9. Separate DB into an octet string pHash’ || PS || 01 || M
-        print("DB: ", DB)
         return DB
 def rsadp(c, prv_key: RSAKey) -> int:
     """ 

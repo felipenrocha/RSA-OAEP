@@ -9,13 +9,11 @@ def mask(message, pub_key):
 
 
 def remove_mask(octet_string: bytes):
-    print('Octet string', octet_string)
     zero_octet = b'\x00'
     i = 0
-    print('octet string 1', octet_string[0])
     while octet_string[i] == 0:
         i+=1
-    return octet_string[i:-1]
+    return octet_string[i:]
 
 
 
@@ -51,10 +49,6 @@ def os2ip(X):
     Output: 
         1. x  - corresponding nonnegative integer
     """
-    # 1. Let X1X2 . . . Xn be the octets of X from first to last,
-    #   and let Xi have the integer value xl−i for 1 ≤ i ≤ l.
-    # 2. Let x = x_{l−1}256^(l−1) + x+{l−2}256^(l−2) + . . . + x1256 + x0.
-    # 3. output x
     return int.from_bytes(X, byteorder='big')
 
 def xor(x: bytes, y: bytes) -> bytes:
