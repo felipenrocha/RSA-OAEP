@@ -1,4 +1,4 @@
-from src.prime import get_prime, BITS
+from src.prime import get_prime
 import src.modular_math as mod
 from src.primitives import BASE64Decoding, BASE64Encode, tobytes, totuple, tostr
 import random, os, sys
@@ -10,16 +10,19 @@ import random, os, sys
 # inspired by: https://www.youtube.com/watch?v=oOcTVTpUsPQ and https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 
 class RSAKey:
-    def __init__(self, p=0, q=0, e= 0, d = 0, modulus=0):
+    def __init__(self, size=1024, p=0, q=0, e= 0, d = 0, modulus=0):
+        #   size of primes in bits:
+        self.size = size
+
+
         #  setup key with params fixed
-     
         self._e = 0
         self._d = 0
         # create new key
         if e == 0 and d == 0:
             # 1) Choose two large prime numbers p and q
-            self.p = get_prime()
-            self.q = get_prime()
+            self.p = get_prime(size)
+            self.q = get_prime(size)
             # 2) Compute n = pq
             self._n = self.p * self.q
             # 3) compute phi(n)
@@ -115,7 +118,7 @@ class RSAKey:
         # 2) has to be coprime with n and phi(n)
         # """
         while True:
-            e = random.randrange(2**(BITS - 1), 2**(BITS))
+            e = random.randrange(2**(self.size - 1), 2**(self.size))
             if mod.is_coprime(e, self.phi):
                 return e
     def __generate_d(self, e):
@@ -159,7 +162,7 @@ def import_key(extern_key):
                     (e,n)/(d,n) converted to base64
             ------------ END KEY_TYPE KEY ----------------
     """
-    print(extern_key)
+    
     # extern_key.encode('ascii')
     key_type = get_key_type(extern_key)
     keys_string = BASE64Decoding(extern_key, key_type) 

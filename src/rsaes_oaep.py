@@ -6,9 +6,14 @@ from src.rsa import RSAKey
 
 
 
+
 # Author: Felipe Nascimento Rocha
 # Based on: https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
 # Brasilia, Brazil, 2023
+
+
+# TODO: BUG: 
+#  sometimes the i2osp function returns int too large, dont know how to fix or why its happening
 
 
 def basic_encryption(pub_key: RSAKey, M):
@@ -39,6 +44,7 @@ def basic_decryption(prv_key, C):
 # NOT WORKING
 
 def oaep_encrypt(pub_key:RSAKey, M, P = b""):
+    
     """
     RSAES-OAEP-Encrypt((n, e), M, P)
     Input:
@@ -51,6 +57,9 @@ def oaep_encrypt(pub_key:RSAKey, M, P = b""):
     Errors: 1. message too long
     Assumption: public key (n, e) is valid
     """
+    # BUG FIX:
+
+    M = M +  ' '
     # steps:
 
     # 1.Apply the EME-OAEP encoding operation to the message M and the
@@ -67,7 +76,7 @@ def oaep_encrypt(pub_key:RSAKey, M, P = b""):
     C = i2osp(c, k)
     # 5. Output the ciphertext C.
     return C
-def oaep_encode(M, emLen, label= b"", hash=sha256, mgf=mgf1):
+def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1):
     """
     OAEP encoding operation:
 
@@ -90,6 +99,7 @@ def oaep_encode(M, emLen, label= b"", hash=sha256, mgf=mgf1):
         raise ValueError("Parameter String too large")
     
     # 2. let pHash = Hash(P), an octet string of length hLen.
+    M = M.encode('ascii')
     lHash = hash(label)
     hLen = len(lHash)
     mLen = len(M)    
@@ -162,7 +172,7 @@ def oaep_decrypt(prv_key:RSAKey, C, P=b""):
     # the encoding parameters P to recover a message M:
     M = oaep_decode(EM, P)
     # 6. Output the message M
-    return M
+    return M.decode('ascii')
 def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         """ EME-OAEP-Decode(EM, P)
         Options: 
@@ -202,8 +212,14 @@ def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         # 7. Let DB = maskedDB xor dbMask.
         DB = xor(maskedDB, dbMask)
         # 8. Let pHash = Hash(P), an octet string of length hLen.
+        print('phash', lHash)
+        index = DB.find(b'\x01') + 1
+        if lHash in DB:
+            print('Correct Parameter form from decrytped message! Verificação aceita!')
+
         # 9. Separate DB into an octet string pHash’ || PS || 01 || M
-        return DB
+
+        return DB[index:]
 def rsadp(c, prv_key: RSAKey) -> int:
     """ 
     Rsa decryption process

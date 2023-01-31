@@ -1,7 +1,7 @@
 #  https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
 
 import base64, hashlib, math, random
-
+from decimal import Decimal
 
 def mask(message, pub_key):
     mLen = len(message)
@@ -19,12 +19,13 @@ def remove_mask(octet_string: bytes):
 
 
 def sha256(m):
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha384()
     hasher.update(m)
     return hasher.digest()
+
+
 def tostr(bs):
     return bs.decode("ascii")
-    
 def i2osp(x: int, l: int):
     """
      Integer-to-Octet-String
@@ -101,25 +102,6 @@ def mgf1(seed, emLen, hash=hashlib.sha1):
         T = T + hash().digest()
     assert(len(T) >= emLen)
     return T[:emLen]
-# #    1.If l > 2^32(hLen), output "mask too long" and stop.
-#     hLen = hash().digest_size # size of sha1 hash
-#     if emLen > pow(2, (32*hLen)):
-#         raise ValueError("Mask too long")
-# #    2.Let T  be the empty octet string.
-#     T = b''
-# #    3.For counter from 0 to \lceil{l / hLen}\rceil-1, do the following:
-#     for i in range(0, math.ceil(emLen / hLen)):
-
-# #       a.Convert counter to an octet string C of length 4 with the primitive
-# #           I2OSP: C = I2OSP (counter, 4)
-#             c =  i2osp(i, 4)
-#             T += hash(z + c).digest()
-# #       b.Concatenate the hash of the seed Z and C to the octet string T: T =
-# #               T || Hash (Z || C)
-
-# #    4.Output the leading l octets of T as the octet string mask.
-#     #  FIRST ONE IS
-#     return T[:emLen]
 
 
 # TODO: implement this functions myself

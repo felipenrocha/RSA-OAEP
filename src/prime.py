@@ -1,14 +1,12 @@
 
 import random
-BITS = 1024
-
  
        
 
-def get_prime():
+def get_prime(bits):
     """Generate random prime of BITS size"""
     while True:
-        prime_candidate = __get_low_level_prime(list_of_primes)
+        prime_candidate = __get_low_level_prime(list_of_primes, bits=bits)
         if __miller_rabin_test(prime_candidate):
             return prime_candidate
 
@@ -47,7 +45,7 @@ def get_small_primes(number):
 list_of_primes = get_small_primes(1000)
 
 
-def __get_low_level_prime(list_of_primes):
+def __get_low_level_prime(list_of_primes, bits=1024):
     """
             The prime candidate is divided by the pre-generated primes to check for divisibility.
         Division with first primes to check for divisibility. If the Prime candidate is divisible 
@@ -60,7 +58,7 @@ def __get_low_level_prime(list_of_primes):
 
     while True:
              # Obtain a random number
-        prime_candidate = __random_number() 
+        prime_candidate = __random_number(bits=bits) 
         for divisor in list_of_primes: 
             if prime_candidate % divisor == 0 and divisor  ** 2 <= prime_candidate:
                 break
@@ -97,6 +95,6 @@ def __single_test(n, a):
 
 
     # return number of bit size n private function:
-def __random_number():
-    return(random.randrange(2**(BITS-1)+1, 2**BITS-1))
+def __random_number(bits):
+    return(random.randrange(2**(bits-1)+1, 2**bits-1))
 
