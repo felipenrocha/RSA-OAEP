@@ -1,7 +1,29 @@
 #  https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
 
-import base64, hashlib, math
+import base64, hashlib, math, random
 
+
+def mask(message, pub_key):
+    mLen = len(message)
+    return b'\x00' * (pub_key._size_in_bytes() - mLen)
+
+
+def remove_mask(octet_string: bytes):
+    print('Octet string', octet_string)
+    zero_octet = b'\x00'
+    i = 0
+    print('octet string 1', octet_string[0])
+    while octet_string[i] == 0:
+        i+=1
+    return octet_string[i:-1]
+
+
+
+
+def sha256(m):
+    hasher = hashlib.sha1()
+    hasher.update(m)
+    return hasher.digest()
 def tostr(bs):
     return bs.decode("ascii")
     
@@ -17,14 +39,10 @@ def i2osp(x: int, l: int):
 
     Errors: integer too large
     """
-
-    # 2.  Write the integer x in its unique l-digit representation base 256:
-    # 3. Let the octet Xi have the integer value xl−1 for 1 ≤ i ≤ l.
-    #  Output the octet string X = X1X2 . . . Xl
-
     return x.to_bytes(l, byteorder='big')
    
-
+def random_octet(length):
+    return bytes(random.randrange(256) for i in range(length))
 
 def os2ip(X):
     """
@@ -71,7 +89,7 @@ def fromBase64(string):
     string = string_bytes.decode("ascii")
     return string
 
-def mgf1(z, emLen, hash=hashlib.sha1):
+def mgf1(seed, emLen, hash=hashlib.sha1):
     """MGF1 is a Mask Generation Function based on a hash function.
 
         Inputs  1. Z - seed from which mask is generated, an octet string
@@ -81,25 +99,33 @@ def mgf1(z, emLen, hash=hashlib.sha1):
     """
 #    Steps:
 
-#    1.If l > 2^32(hLen), output "mask too long" and stop.
-    hLen = hash().digest_size # size of sha1 hash
-    if emLen > pow(2, (32*hLen)):
-        raise ValueError("Mask too long")
-#    2.Let T  be the empty octet string.
-    T = b''
-#    3.For counter from 0 to \lceil{l / hLen}\rceil-1, do the following:
-    for i in range(0, math.ceil(emLen / hLen)):
 
-#       a.Convert counter to an octet string C of length 4 with the primitive
-#           I2OSP: C = I2OSP (counter, 4)
-            c =  i2osp(i, 4)
-            T += hash(z + c).digest()
-#       b.Concatenate the hash of the seed Z and C to the octet string T: T =
-#               T || Hash (Z || C)
-
-#    4.Output the leading l octets of T as the octet string mask.
-    #  FIRST ONE IS
+    T = b""
+    for counter in range(math.ceil(emLen / hash().digest_size)):
+        c = i2osp(counter, 4)
+        hash().update(seed + c)
+        T = T + hash().digest()
+    assert(len(T) >= emLen)
     return T[:emLen]
+# #    1.If l > 2^32(hLen), output "mask too long" and stop.
+#     hLen = hash().digest_size # size of sha1 hash
+#     if emLen > pow(2, (32*hLen)):
+#         raise ValueError("Mask too long")
+# #    2.Let T  be the empty octet string.
+#     T = b''
+# #    3.For counter from 0 to \lceil{l / hLen}\rceil-1, do the following:
+#     for i in range(0, math.ceil(emLen / hLen)):
+
+# #       a.Convert counter to an octet string C of length 4 with the primitive
+# #           I2OSP: C = I2OSP (counter, 4)
+#             c =  i2osp(i, 4)
+#             T += hash(z + c).digest()
+# #       b.Concatenate the hash of the seed Z and C to the octet string T: T =
+# #               T || Hash (Z || C)
+
+# #    4.Output the leading l octets of T as the octet string mask.
+#     #  FIRST ONE IS
+#     return T[:emLen]
 
 
 # TODO: implement this functions myself
@@ -110,7 +136,6 @@ def BASE64Encode(data, key_type):
     return out
 
 def BASE64Decoding(data, key_type):
-    data = tostr(data)
     data = data.split("\n")
     data = data[1:-1][0]
     return fromBase64(data)

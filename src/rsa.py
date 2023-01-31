@@ -94,7 +94,7 @@ class RSAKey:
 
     def _size_in_bytes(self):
         """The minimal amount of bytes that can hold the RSA modulus"""
-        return (self._n.bit_length() - 1) // 8 + 1    
+        return (self._n.bit_length()) // 8   
 
     
         
@@ -146,7 +146,7 @@ class RSAKey:
             str = BASE64Encode(self.get_key(), key_type)
             
 
-        return tobytes(str)
+        return tobytes(str).decode('ascii')
 
 
 
@@ -159,6 +159,8 @@ def import_key(extern_key):
                     (e,n)/(d,n) converted to base64
             ------------ END KEY_TYPE KEY ----------------
     """
+    print(extern_key)
+    # extern_key.encode('ascii')
     key_type = get_key_type(extern_key)
     keys_string = BASE64Decoding(extern_key, key_type) 
     key = totuple(keys_string)
@@ -170,7 +172,7 @@ def import_key(extern_key):
         return RSAKey(d=d, modulus=modulus)
 
 def get_key_type(extern_key):
-    if "PUBLIC KEY" in tostr(extern_key):
+    if "PUBLIC KEY" in extern_key:
         return "PUBLIC KEY"
     else:
         return "PRIVATE KEY"

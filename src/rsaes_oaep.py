@@ -1,6 +1,6 @@
 
 from typing import Callable
-from src.primitives import xor,i2osp, os2ip, mgf1
+from src.primitives import xor,i2osp, os2ip, mask, remove_mask, sha256, mgf1
 import os, math,hashlib, random
 from src.rsa import RSAKey
 
@@ -11,9 +11,32 @@ from src.rsa import RSAKey
 # Brasilia, Brazil, 2023
 
 
+def basic_encryption(pub_key: RSAKey, M):
+    m  =  M.encode("ascii")
+    mLen = len(m)
+    if mLen > pub_key._size_in_bytes():
+        raise ValueError("Message to long")
+    
+    masked  = mask(m, pub_key)
+    new_message = masked+m
+    encoded_int = int.from_bytes(new_message, byteorder='big')
+    em = rsaep(encoded_int, pub_key)
+    return em
+  
+def basic_decryption(prv_key, C):
+    encoded_int = rsadp(c=C, prv_key=prv_key)
+    maskSize = prv_key._size_in_bytes()
+    decoded_int = encoded_int.to_bytes(length=maskSize, byteorder='big')
+    dm = remove_mask(decoded_int)
+    return dm.decode('ascii')
+
+
+
 # EME- OAEP ENCONDING:
 
 # RSAES - OAEP Encryption process:
+
+# NOT WORKING
 
 def oaep_encrypt(pub_key:RSAKey, M, P = b""):
     """
@@ -44,7 +67,7 @@ def oaep_encrypt(pub_key:RSAKey, M, P = b""):
     C = i2osp(c, k)
     # 5. Output the ciphertext C.
     return C
-def oaep_encode(M, emLen, label= b"", hash=hashlib.sha256, mgf=mgf1):
+def oaep_encode(M, emLen, label= b"", hash=sha256, mgf=mgf1):
     """
     OAEP encoding operation:
 
@@ -67,24 +90,20 @@ def oaep_encode(M, emLen, label= b"", hash=hashlib.sha256, mgf=mgf1):
         raise ValueError("Parameter String too large")
     
     # 2. let pHash = Hash(P), an octet string of length hLen.
-
-    lHash = hash(label).digest()
-    hLen = hash().digest_size
+    lHash = hash(label)
+    hLen = len(lHash)
     mLen = len(M)    
     # 4. Generate an octet string PS consisting of (emLen − mLen − 2hLen − 1) zero octets. 
     # The length of PS may be 0.
     # PADDING:
     zero_octet = b'\x00'
-    ps =  b'\x00' * 2
-    print('ps: ',ps)
     PS = zero_octet * (emLen - mLen - 2*hLen - 2)
     # 5. Concatenate lHash, PS, the message M, and other padding to form a data block DB as
-    print('PS: ', PS)
     #  DB = lHash + PS + 01 + M.
     DB = lHash + PS + b'\x01' + M
-    print('DB: ', DB)
     # 6. Generate a random octet string seed of length hLen.
     seed = os.urandom(hLen)
+
     # 7. Let dbMask = MGF(seed , emLen − hLen)
     dbMask = mgf(seed, emLen - hLen)
     #8.  Let maskedDB = DB xor dbMask.
@@ -105,7 +124,7 @@ def rsaep(m, pub_key: RSAKey):
     Public Key = (e, n)
     """
     # assume pub key is valid in the form (e,n)
-    e, n = pub_key
+    e, n = pub_key.get_key()
     c = pow(m, e, n)
     if c > n - 1 or c < 0:
         raise ValueError("Message representative out of range")
@@ -144,7 +163,7 @@ def oaep_decrypt(prv_key:RSAKey, C, P=b""):
     M = oaep_decode(EM, P)
     # 6. Output the message M
     return M
-def oaep_decode(EM, P = b'', hash=hashlib.sha1, mgf=mgf1):
+def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
         """ EME-OAEP-Decode(EM, P)
         Options: 
             1. Hash - hash function (hLen denotes the length in octets of the hash function output)
@@ -162,41 +181,44 @@ def oaep_decode(EM, P = b'', hash=hashlib.sha1, mgf=mgf1):
         # steps:
         # 1. If the length of P is greater than the input limitation then output ‘‘decoding error’’ and stop.
         # SHA1: 2^61 - 1
-        if len(P) > (pow(2, 61) - 1):
+        if len(label) > (pow(2, 61) - 1):
             raise ValueError("Decoding error, parameter too large")
         # 2. If emLen < 2hLen + 1, output ‘‘decoding error’’ and stop.
         emLen = len(EM) 
-        print(emLen)
-        hLen = hash().digest_size
+        lHash = hash(label)
+        hLen = len(lHash)
         
-        if emLen < ((2*hLen) + 1):
-            raise ValueError("Decoding error, parameter too large")
+        # if emLen < ((2*hLen) + 1):
+        #     raise ValueError("Decoding error, parameter too large")
         # 3. Let maskedSeed be the first hLen octets of EM and let maskedDB be the remaining emLen-hLen octets.
         maskedSeed = EM[0:hLen]
+        print("Masked seed: ", maskedSeed)
         maskedDB = EM[hLen+1:-1]
         # 4.  Let seedMask = MGF(maskedDB, hLen).
-        seedMask =  mgf1(maskedDB, hLen)
+        seedMask =  mgf(maskedDB, hLen)
         # 5. Let seed = maskedSeed xor seedMask.
         seed = xor(maskedSeed,seedMask) 
         # 6. Let dbMask = MGF(seed , emLen - hLen)
-        dbMask = mgf1(seed, emLen - hLen)
+        dbMask = mgf(seed, emLen - hLen)
         # 7. Let DB = maskedDB xor dbMask.
         DB = xor(maskedDB, dbMask)
         # 8. Let pHash = Hash(P), an octet string of length hLen.
-        pHash = hash(P).digest()
+        print("pHash: ", lHash)
         # 9. Separate DB into an octet string pHash’ || PS || 01 || M
-        print(DB.find(b'\x01'))
+        print("DB: ", DB)
         return DB
-def rsadp(c, prv_key: RSAKey):
+def rsadp(c, prv_key: RSAKey) -> int:
     """ 
     Rsa decryption process
     Private Key = (d, n)
     """
 
-    d, n = prv_key
+    d, n = prv_key.get_key()
     m = pow(c, d, n)
     if m > n - 1 or m < 0:
         raise ValueError("Ciphertext representative out of range")
     return m
+
+
 
 
