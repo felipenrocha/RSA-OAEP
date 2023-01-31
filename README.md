@@ -1,4 +1,4 @@
-# RSA Signature Generator/Verifier
+# RSA Signature Generator/Verifier (no Crypto packages)
 
 Author: Felipe Nacimento Rocha
 
@@ -24,4 +24,12 @@ Author: Felipe Nacimento Rocha
                 b. Decifração da assinatura (decifração do hash)
                 c. Verificação (cálculo e comparação do hash do arquivo)
 
+
+#### Execução:
+Python >=3.10
+
+
+```
+        python main.py
+```
 
