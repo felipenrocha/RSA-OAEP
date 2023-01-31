@@ -68,12 +68,14 @@ def __get_low_level_prime(list_of_primes, bits=1024):
 
 
 def __miller_rabin_test(n, k=10):
+    """Miller Rabin test for k iterations"""
     for i in range(k):
         a = random.randrange(2, n - 1)
         if not __single_test(n, a):
             return False
     return True
 def __single_test(n, a):
+    """One iteration of miller rabin test"""
     exp = n - 1
     while not exp & 1:
         exp >>= 1
@@ -96,5 +98,6 @@ def __single_test(n, a):
 
     # return number of bit size n private function:
 def __random_number(bits):
+    """Generate number from 2^{bits-1} to 2^bits"""
     return(random.randrange(2**(bits-1)+1, 2**bits-1))
 

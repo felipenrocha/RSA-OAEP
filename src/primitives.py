@@ -4,12 +4,14 @@ import base64, hashlib, math, random
 from decimal import Decimal
 
 def mask(message, pub_key):
+    """Function that extends zero octets of message until it reaches pub_key.n length"""
     mLen = len(message)
     return b'\x00' * (pub_key._size_in_bytes() - mLen)
 
 
 def remove_mask(octet_string: bytes):
-    zero_octet = b'\x00'
+    """Function that remove zero octets of message"""
+
     i = 0
     while octet_string[i] == 0:
         i+=1
@@ -19,12 +21,14 @@ def remove_mask(octet_string: bytes):
 
 
 def sha256(m):
+    """Hasher for our OAEP and Mask function"""
     hasher = hashlib.sha384()
     hasher.update(m)
     return hasher.digest()
 
 
 def tostr(bs):
+    """Return a string from a bytestring"""
     return bs.decode("ascii")
 def i2osp(x: int, l: int):
     """
@@ -40,11 +44,15 @@ def i2osp(x: int, l: int):
     """
     return x.to_bytes(l, byteorder='big')
    
-def random_octet(length):
-    return bytes(random.randrange(256) for i in range(length))
+def random_octet(n):
+    """
+    Generate random n octects
+    """
+    return bytes(random.randrange(256) for i in range(n))
 
 def os2ip(X):
     """
+    Octet String to Integer positive
     Input: 
         1. X -  octet string to be converted
     Output: 
@@ -57,6 +65,7 @@ def xor(x: bytes, y: bytes) -> bytes:
     return bytes(a ^ b for a, b in zip(x, y))
 
 def tobytes(s, encoding="latin-1"):
+        """Transform instances of data types to bytes"""
         if isinstance(s, bytes):
             return s
         elif isinstance(s, bytearray):
@@ -71,14 +80,14 @@ def tobytes(s, encoding="latin-1"):
 
         
 def toBase64(string):
-    
+    """Encode String to base64"""
     string_bytes = string.encode("ascii")
     base64_bytes = base64.b64encode(string_bytes)
     base64_string = base64_bytes.decode("ascii")
     return base64_string
 
 def fromBase64(string):
-   
+    """Decode string from base64 to  normal string"""
     base64_bytes = string.encode("ascii")
     string_bytes = base64.b64decode(base64_bytes)
     string = string_bytes.decode("ascii")
@@ -104,14 +113,15 @@ def mgf1(seed, emLen, hash=hashlib.sha1):
     return T[:emLen]
 
 
-# TODO: implement this functions myself
 def BASE64Encode(data, key_type):
+    """generate string for key exportion with base64"""
     out = "-----BEGIN " + key_type + "-----\n "
     out += toBase64(str(data))+ "\n"
     out += "-----END "+ key_type + "-----" 
     return out
 
 def BASE64Decoding(data, key_type):
+    """generate string of pairs from key exportion"""
     data = data.split("\n")
     data = data[1:-1][0]
     return fromBase64(data)

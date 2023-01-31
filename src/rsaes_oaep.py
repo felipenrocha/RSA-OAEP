@@ -9,32 +9,12 @@ from src.rsa import RSAKey
 
 # Author: Felipe Nascimento Rocha
 # Based on: https://www.inf.pucrs.br/~calazans/graduate/TPVLSI_I/RSA-oaep_spec.pdf
+
 # Brasilia, Brazil, 2023
 
 
 # TODO: BUG: 
 #  sometimes the i2osp function returns int too large, dont know how to fix or why its happening
-
-
-def basic_encryption(pub_key: RSAKey, M):
-    m  =  M.encode("ascii")
-    mLen = len(m)
-    if mLen > pub_key._size_in_bytes():
-        raise ValueError("Message to long")
-    
-    masked  = mask(m, pub_key)
-    new_message = masked+m
-    encoded_int = int.from_bytes(new_message, byteorder='big')
-    em = rsaep(encoded_int, pub_key)
-    return em
-  
-def basic_decryption(prv_key, C):
-    encoded_int = rsadp(c=C, prv_key=prv_key)
-    maskSize = prv_key._size_in_bytes()
-    decoded_int = encoded_int.to_bytes(length=maskSize, byteorder='big')
-    dm = remove_mask(decoded_int)
-    return dm.decode('ascii')
-
 
 
 # EME- OAEP ENCONDING:
@@ -234,4 +214,28 @@ def rsadp(c, prv_key: RSAKey) -> int:
 
 
 
+
+
+
+# BASIC ENCODING: 
+
+
+def basic_encryption(pub_key: RSAKey, M):
+    m  =  M.encode("ascii")
+    mLen = len(m)
+    if mLen > pub_key._size_in_bytes():
+        raise ValueError("Message to long")
+    
+    masked  = mask(m, pub_key)
+    new_message = masked+m
+    encoded_int = int.from_bytes(new_message, byteorder='big')
+    em = rsaep(encoded_int, pub_key)
+    return em
+  
+def basic_decryption(prv_key, C):
+    encoded_int = rsadp(c=C, prv_key=prv_key)
+    maskSize = prv_key._size_in_bytes()
+    decoded_int = encoded_int.to_bytes(length=maskSize, byteorder='big')
+    dm = remove_mask(decoded_int)
+    return dm.decode('ascii')
 
