@@ -23,6 +23,8 @@ class RSAKey:
             # 1) Choose two large prime numbers p and q
             self.p = get_prime(size)
             self.q = get_prime(size)
+            print('prime p:', self.p)
+            print('prime q:', self.q)
             # 2) Compute n = pq
             self._n = self.p * self.q
             # 3) compute phi(n)

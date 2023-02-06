@@ -19,39 +19,51 @@ def main():
         interface.print_menu()
         c = input("Select an option: ")
         if c == '1':
-           
-            print('--------------------------------------Key Generator Module--------------------------------------')
-                    # generate new key 1024 bits:
-            bit_size =  input("Select a key size in bits (needs to be a power of 2 bigger than 256): ")
-            bit_size =  int(bit_size)
+            try:
+                print('--------------------------------------Key Generator Module--------------------------------------')
+                        # generate new key 1024 bits:
+                bit_size =  input("Select a key size in bits (needs to be a power of 2 bigger than 256): ")
+                bit_size =  int(bit_size)
 
-            print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
+                print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
 
-            key_pairs = RSAKey(bit_size)
-            # get public key
-            pub_key = key_pairs.public_key
-            # get private key
-            prv_key = key_pairs.private_key
-            print('Public Key: ', pub_key.get_key())
-            print('Private Key: ', prv_key.get_key())
+                key_pairs = RSAKey(bit_size)
+                # get public key
+                pub_key = key_pairs.public_key
+                # get private key
+                prv_key = key_pairs.private_key
+                print('Public Key: ', pub_key.get_key())
+                print('Private Key: ', prv_key.get_key())
+            except:
+                print("An error ocurred, try again.") 
         elif c == '2':
         # importing/exporting keys section:
-            interface.import_export(pub_key=pub_key, prv_key=prv_key)   
+            try:
+                interface.import_export(pub_key=pub_key, prv_key=prv_key)   
+            except:
+                print("An error ocurred, try again.") 
 
         elif c == '3':
-        # Basic Encrypting Section:
-            interface.basicEncryption()
-            
-        elif c == '4':
-        # verification section
-            interface.verification()
-
-        elif c == '5':
-        # oaep section
+            # oaep section
             try:
                 interface.rsaoaep()
             except:
-                print("An error ocurred, int too big to convert.")  
+                print("An error ocurred, try again.")  
+
+            
+        elif c == '4':
+        # verification section
+            try:
+                interface.verification()
+            except:
+                print("An error ocurred, try again.") 
+
+        elif c == '5':
+        # Basic Encrypting Section:
+            try:
+                interface.basicEncryption()
+            except:
+                print("An error ocurred, try again.") 
         elif c == '6':
             interface.key_values()
         elif c == '7':

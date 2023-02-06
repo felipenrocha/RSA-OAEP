@@ -34,8 +34,10 @@ def get_small_primes(number):
             for i in range(p * p, number+1, p):
                 prime[i] = False
         p+=1
-        # return list of primes
+        # return list of prim
+        # es
     for i in range(number):
+
         if prime[i] == True:
             list_of_primes.append(i)        
 
@@ -99,5 +101,5 @@ def __single_test(n, a):
     # return number of bit size n private function:
 def __random_number(bits):
     """Generate number from 2^{bits-1} to 2^bits"""
-    return(random.randrange(2**(bits-1)+1, 2**bits-1))
+    return(random.randrange(2**(bits-1), 2**bits-1))
 
