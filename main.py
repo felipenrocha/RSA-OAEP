@@ -1,7 +1,6 @@
 
 
 from src.rsa import RSAKey, import_key
-from src.primitives import i2osp
 import src.interface as interface
 
 
@@ -10,28 +9,22 @@ import time
 def main():
     start_time = time.time()
     bit_size = 1024
+    pub_key = None
+    prv_key = None
 
-    print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
-    key_pairs = RSAKey(bit_size)
-    print("--- %s Total seconds ---" % (time.time() - start_time))
-
-    pub_key = key_pairs.public_key
-    # get private key
-    prv_key = key_pairs.private_key
-    print('Public Key: ', pub_key.get_key())
-    print('Private Key: ', prv_key.get_key())
-    interface.wait_input()
-
-    # menu
-    c = ''
-    while c != '6':
+    c = True
+    while c:
+        if not (pub_key or prv_key):
+            print("Public and Private key not found, you should generate one to continue.")
         interface.print_menu()
-        c = input("Selecione uma opção: ")
+        c = input("Select an option: ")
         if c == '1':
            
             print('--------------------------------------Key Generator Module--------------------------------------')
                     # generate new key 1024 bits:
-                    
+            bit_size =  input("Select a key size in bits (needs to be a power of 2 bigger than 256): ")
+            bit_size =  int(bit_size)
+
             print("generating new key with primes of size " + str(bit_size)+ " bits... (this can take a while)")
 
             key_pairs = RSAKey(bit_size)
@@ -47,25 +40,24 @@ def main():
 
         elif c == '3':
         # Basic Encrypting Section:
-            interface.basicEncryption(pub_key=pub_key, prv_key=prv_key)
+            interface.basicEncryption()
             
         elif c == '4':
-            interface.verification(pub_key=pub_key, prv_key=prv_key)
+        # verification section
+            interface.verification()
 
         elif c == '5':
         # oaep section
             try:
-                interface.rsaoaep(pub_key=pub_key, prv_key=prv_key)
+                interface.rsaoaep()
             except:
-                print("An error ocurred, int too big to convert.")
-        elif c == '':
-            continue     
+                print("An error ocurred, int too big to convert.")  
+        elif c == '6':
+            interface.key_values()
+        elif c == '7':
+            break
         else:
-            interface.print_menu()
-            c = input("Selecione uma opção: ")
-
-
-
+            print('Opcao inválida.')
 
 
 

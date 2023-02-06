@@ -153,7 +153,7 @@ class RSAKey:
 
 
 
-def import_key(extern_key) -> RSAKey:
+def import_key(path) -> RSAKey:
     """
     Import an RSA key (public or private). 
         that has this format:
@@ -162,6 +162,8 @@ def import_key(extern_key) -> RSAKey:
                     (e,n)/(d,n) converted to base64
             ------------ END KEY_TYPE KEY ----------------
     """
+    with open(path, 'r') as f:
+        extern_key = f.read()
     
     # extern_key.encode('ascii')
     key_type = get_key_type(extern_key)

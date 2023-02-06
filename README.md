@@ -3,8 +3,6 @@
 Author: Felipe Nacimento Rocha
 
 
-    TODO:
-
         1. Parte I: Geração de chaves e cifra
         
                 a. Geração de chaves (p e q primos com no mínimo de 1024 bits) (DONE)
