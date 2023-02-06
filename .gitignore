@@ -3,3 +3,5 @@ src/__pycache__
 venv
 .vscode
 *.pem
+signature.txt
+encrypted.txt
