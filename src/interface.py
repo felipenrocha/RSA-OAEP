@@ -95,10 +95,12 @@ def import_export(pub_key:RSAKey, prv_key:RSAKey):
     print('--------------------------------------Export/Import Key Module--------------------------------------')
 
     exported_pub_key = pub_key.export_key()
-    with open('pub_key.pem', 'w') as f:
+    file_name = input("Name of Public Key: ")
+    with open(file_name, 'w') as f:
         f.write(exported_pub_key)
+    file_name = input("Name of Private Key: ")
     exported_prv_key = prv_key.export_key()
-    with open('prv_key.pem', 'w') as f:
+    with open(file_name, 'w') as f:
         f.write(exported_prv_key)
     print('Exported Public Key: \n', exported_pub_key)
     print('Exported Private Key: \n', exported_prv_key)
