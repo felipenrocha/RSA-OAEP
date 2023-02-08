@@ -17,9 +17,12 @@ def verification():
             print("generating signature...")       
             signature = sign(s, prv_key)
             print("Signature generated: ", signature)
-            with open('signature.txt', 'w') as f:
+            with open('signature', 'w') as f:
                 f.write(signature)
-            print("Exported signature to file signature.txt")
+            with open('original', 'w') as f:
+                f.write(s)
+            print("Exported signature to file signature and original message to file original.")
+
         elif int(c) == 2:
             path = input("Type the path of the signer's Public key: ")
             pub_key = import_key(path)
@@ -48,7 +51,8 @@ def rsaoaep():
             print("OAEP Encrypted Message: ",EM)
             export = input("1)Export\n2) Go back ")
             if int(export) == 1:
-                with open('encrypted.txt', 'wb') as f:
+                name_of_file = input("Name of file:")
+                with open(name_of_file, 'wb') as f:
                     f.write(EM)
         elif int(inpt) == 2:
             path = input("Type the path to your Private key: ")

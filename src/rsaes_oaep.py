@@ -20,7 +20,6 @@ from src.rsa import RSAKey
 
 # RSAES - OAEP Encryption process:
 
-# NOT WORKING
 
 def oaep_encrypt(pub_key:RSAKey, M, P = b"") -> bytes:
     
@@ -55,6 +54,7 @@ def oaep_encrypt(pub_key:RSAKey, M, P = b"") -> bytes:
     C = i2osp(c, k)
     # 5. Output the ciphertext C.
     return C
+    
 def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1) -> bytes:
     """
     OAEP encoding operation:
@@ -82,6 +82,7 @@ def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1) -> bytes:
     mLen = len(M)    
     # 4. Generate an octet string PS consisting of (emLen − mLen − 2hLen − 1) zero octets. 
     # The length of PS may be 0.
+
     # PADDING:
     zero_octet = b'\x00'
     PS = zero_octet * (emLen - mLen - 2*hLen - 2)

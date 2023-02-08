@@ -13,8 +13,6 @@ class RSAKey:
     def __init__(self, size=1024, p=0, q=0, e= 0, d = 0, modulus=0):
         #   size of primes in bits:
         self.size = size
-
-
         #  setup key with params fixed
         self._e = 0
         self._d = 0
@@ -67,7 +65,7 @@ class RSAKey:
     @property 
     def private_key(self):
         if self._d != 0:
-            return RSAKey(d=self._d, modulus=self._n, p = self.p, q = self.q, e =0) 
+            return RSAKey(d=self._d, modulus=self._n, p = self.p, q = self.q, e=0) 
         else:
             raise ValueError("This is a public key, you cant get the private one.")  
  
@@ -121,7 +119,7 @@ class RSAKey:
         # """
         while True:
             e = random.randrange(2**(self.size - 1), 2**(self.size))
-            if mod.is_coprime(e, self.phi):
+            if mod.is_coprime(e, self.phi) and mod.is_coprime(e, self.n):
                 return e
     def __generate_d(self, e):
         """
@@ -135,7 +133,7 @@ class RSAKey:
         """
         Export this key
         Output:
-            Byte string: A chave cifrada.
+            String: Key encoded to Base64.
 
             Formato: 
             ----------- BEGIN KEY_TYPE KEY ---------------

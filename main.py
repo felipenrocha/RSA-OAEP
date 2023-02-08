@@ -46,7 +46,7 @@ def main():
             try:
                 interface.rsaoaep()
             except:
-                print("An error ocurred, try again.")  
+                print("An error ocurred, try again. Maybe the string is too large")  
 
             
         elif c == '4':

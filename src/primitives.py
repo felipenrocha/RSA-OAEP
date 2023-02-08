@@ -5,7 +5,7 @@ from decimal import Decimal
 
 
 def sha256(m):
-    """Hasher for our OAEP and Mask function"""
+    """Hasher for our OAEP and Signing function"""
     hasher = hashlib.sha1()
     hasher.update(m)
     return hasher.digest()
@@ -56,8 +56,8 @@ def mgf1(seed, emLen, hash=hashlib.sha256):
         # C = I2OSP(i, 4).
         # 3.2 Concatenate the hash of the seed Z and C to the octet string T:
         # T = T + Hash(Z + C)
-    for counter in range(math.ceil(emLen / hLen)):
-        c = i2osp(counter, 4)
+    for i in range(math.ceil(emLen / hLen)):
+        c = i2osp(i, 4)
         hash().update(seed + c)
         T = T + hash().digest()
     assert(len(T) >= emLen)
@@ -116,12 +116,20 @@ def BASE64Decoding(data, key_type):
 
 
 def totuple(text):
-    """Convert text into Tuple"""
+    """Convert text into Tuple
+        Ex.: "(1,2)" -> (1,2)
+    """
     #  remove ( and ):
     text = text[1:-1]
     text = text.split(",")
     return (int(text[0]), int(text[1]))
 
+
+def tostr(bs):
+    """Return a string from a bytestring"""
+    return bs.decode("ascii")
+
+    
 def mask(message, pub_key):
     """Function that extends zero octets of message until it reaches pub_key.n length"""
     mLen = len(message)
@@ -136,12 +144,3 @@ def remove_mask(octet_string: bytes):
         i+=1
     return octet_string[i:]
 
-
-def tostr(bs):
-    """Return a string from a bytestring"""
-    return bs.decode("ascii")
-def random_octet(n):
-    """
-    Generate random n octects
-    """
-    return bytes(random.randrange(256) for i in range(n))
