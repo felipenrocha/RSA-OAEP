@@ -14,8 +14,6 @@ def main():
 
     c = True
     while c:
-        if not (pub_key or prv_key):
-            print("Public and Private key not found, you should generate one to continue.")
         interface.print_menu()
         c = input("Select an option: ")
         if c == '1':

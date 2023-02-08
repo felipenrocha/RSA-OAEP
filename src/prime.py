@@ -7,7 +7,7 @@ def get_prime(bits):
     """Generate random prime of BITS size"""
     while True:
         prime_candidate = __get_low_level_prime(list_of_primes, bits=bits)
-        if __miller_rabin_test(prime_candidate, k=30):
+        if __miller_rabin_test(prime_candidate, k=20):
             return prime_candidate
 
 

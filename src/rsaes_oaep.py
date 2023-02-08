@@ -22,7 +22,7 @@ from src.rsa import RSAKey
 
 # NOT WORKING
 
-def oaep_encrypt(pub_key:RSAKey, M, P = b""):
+def oaep_encrypt(pub_key:RSAKey, M, P = b"") -> bytes:
     
     """
     RSAES-OAEP-Encrypt((n, e), M, P)
@@ -55,7 +55,7 @@ def oaep_encrypt(pub_key:RSAKey, M, P = b""):
     C = i2osp(c, k)
     # 5. Output the ciphertext C.
     return C
-def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1):
+def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1) -> bytes:
     """
     OAEP encoding operation:
 
@@ -74,9 +74,7 @@ def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1):
     """
     # 1. If the length of P is greater than the input limitation for the hash function
     # (2^61 - 1 octets for SHA-1) then output ‘‘parameter string too long’’ and stop.
-    if  len(label) > (pow(2,61) - 1):
-        raise ValueError("Parameter String too large")
-    
+
     # 2. let pHash = Hash(P), an octet string of length hLen.
     M = M.encode('utf-8')
     lHash = hash(label)
@@ -107,7 +105,7 @@ def oaep_encode(M:str, emLen, label= b"", hash=sha256, mgf=mgf1):
     # 12. Output EM.
 
     return EM
-def rsaep(m, pub_key: RSAKey):
+def rsaep(m, pub_key: RSAKey) -> int:
     """ 
     Rsa encryption process
     Public Key = (e, n)
@@ -121,7 +119,7 @@ def rsaep(m, pub_key: RSAKey):
 
 # RSAES - OAEP Decryption process:
 
-def oaep_decrypt(prv_key:RSAKey, C, P=b""):
+def oaep_decrypt(prv_key:RSAKey, C, P=b"") -> str:
     """RSAES-OAEP-Decrypt(K, C, P)
         Inputs: 
             1. K - recipients RSA private key
@@ -152,7 +150,7 @@ def oaep_decrypt(prv_key:RSAKey, C, P=b""):
     M = oaep_decode(EM, P)
     # 6. Output the message M
     return M.decode('utf-8')
-def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1):
+def oaep_decode(EM, label = b'', hash=sha256, mgf=mgf1) -> bytes:
         """ EME-OAEP-Decode(EM, P)
         Options: 
             1. Hash - hash function (hLen denotes the length in octets of the hash function output)
